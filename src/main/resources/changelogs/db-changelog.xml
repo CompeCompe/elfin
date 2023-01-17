@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog logicalFilePath="master"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <changeSet id="init table" author="eremenko">
+        <createTable tableName="user">
+            <column name="id" type="bigserial"/>
+            <column name="username" type="varchar(20)"/>
+            <column name="email" type="varchar(100)"/>
+            <column name="password" type="text"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

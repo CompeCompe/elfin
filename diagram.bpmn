@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1oqyujk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.7.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.18.0">
+  <bpmn:process id="elfin" name="Elfin" isExecutable="true" camunda:versionTag="1.0">
+    <bpmn:startEvent id="StartEvent_1" name="Зарегистрироваться">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="email" label="email" type="string">
+            <camunda:validation />
+          </camunda:formField>
+          <camunda:formField id="username" label="username" type="string" />
+          <camunda:formField id="password" label="password" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_1fi6z0t</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_1fi6z0t" sourceRef="StartEvent_1" targetRef="Activity_0zaah45" />
+    <bpmn:serviceTask id="Activity_0zaah45" name="Отправить запрос на регистрацию">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="url">http://elfin:8080/api/registration/register</camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:outputParameter name="statusCode">
+              <camunda:script scriptFormat="JavaScript">statusCode</camunda:script>
+            </camunda:outputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="method">POST</camunda:inputParameter>
+          <camunda:inputParameter name="headers">
+            <camunda:map>
+              <camunda:entry key="Content-Type">application/json</camunda:entry>
+            </camunda:map>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="url">http://localhost:8080/api/registration/register</camunda:inputParameter>
+          <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+          <camunda:outputParameter name="statusCode">
+            <camunda:script scriptFormat="JavaScript">statusCode</camunda:script>
+          </camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1fi6z0t</bpmn:incoming>
+      <bpmn:outgoing>Flow_07hllto</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_0idhl6c">
+      <bpmn:incoming>Flow_07hllto</bpmn:incoming>
+      <bpmn:outgoing>Flow_0bzxivg</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0nt1vk5</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0109iv2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_07hllto" sourceRef="Activity_0zaah45" targetRef="Gateway_0idhl6c" />
+    <bpmn:sequenceFlow id="Flow_0bzxivg" name="statusCode == 200" sourceRef="Gateway_0idhl6c" targetRef="Activity_167nbah">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{statusCode == 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0nt1vk5" name="statuCode == 406" sourceRef="Gateway_0idhl6c" targetRef="Activity_09r6c7s">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{statusCode == 406}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:userTask id="Activity_09r6c7s" name="Необходима ручная проверка данных">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="isEmailCorrect" label="Подтвердить данные или нет?" type="boolean" defaultValue="false" />
+        </camunda:formData>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="isEmailCorrect">${isEmailCorrect}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0nt1vk5</bpmn:incoming>
+      <bpmn:outgoing>Flow_074rzi5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_167nbah" name="Отправка сообщения об успешной регистрации">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://elfin:8080/api/notification/send?isSuccess=true</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="method">POST</camunda:inputParameter>
+          <camunda:inputParameter name="headers">
+            <camunda:map>
+              <camunda:entry key="Content-Type">application/json</camunda:entry>
+            </camunda:map>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+          <camunda:inputParameter name="url">http://localhost:8080/api/notification/send?isSuccess=true</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0bzxivg</bpmn:incoming>
+      <bpmn:incoming>Flow_1nunr77</bpmn:incoming>
+      <bpmn:outgoing>Flow_0906973</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_01jvomf">
+      <bpmn:incoming>Flow_0906973</bpmn:incoming>
+      <bpmn:incoming>Flow_0uci0sz</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0906973" sourceRef="Activity_167nbah" targetRef="Event_01jvomf" />
+    <bpmn:serviceTask id="Activity_0zro49q" name="Отправка сообщения о неудачной регистрации">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+            <camunda:inputParameter name="headers">
+              <camunda:map>
+                <camunda:entry key="Content-Type">application/json</camunda:entry>
+              </camunda:map>
+            </camunda:inputParameter>
+            <camunda:inputParameter name="method">POST</camunda:inputParameter>
+            <camunda:inputParameter name="url">http://elfin:8080/api/notification/send?isSuccess=false</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>http-connector</camunda:connectorId>
+        </camunda:connector>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="method">POST</camunda:inputParameter>
+          <camunda:inputParameter name="headers">
+            <camunda:map>
+              <camunda:entry key="Content-Type">application/json</camunda:entry>
+            </camunda:map>
+          </camunda:inputParameter>
+          <camunda:inputParameter name="payload">{
+"username":"${username}",
+"email":"${email}",
+"password":"${password}"
+}</camunda:inputParameter>
+          <camunda:inputParameter name="url">http://localhost:8080/api/notification/send?isSuccess=false</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0nuesl2</bpmn:incoming>
+      <bpmn:incoming>Flow_0109iv2</bpmn:incoming>
+      <bpmn:outgoing>Flow_0uci0sz</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0uci0sz" sourceRef="Activity_0zro49q" targetRef="Event_01jvomf" />
+    <bpmn:exclusiveGateway id="Gateway_18vg71j">
+      <bpmn:incoming>Flow_074rzi5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0nuesl2</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1nunr77</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_074rzi5" sourceRef="Activity_09r6c7s" targetRef="Gateway_18vg71j" />
+    <bpmn:sequenceFlow id="Flow_0nuesl2" name="isEmailCorrect == false" sourceRef="Gateway_18vg71j" targetRef="Activity_0zro49q">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{isEmailCorrect == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1nunr77" name="isEmailCorrect == true" sourceRef="Gateway_18vg71j" targetRef="Activity_167nbah">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{isEmailCorrect == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0109iv2" name="statusCode == 409" sourceRef="Gateway_0idhl6c" targetRef="Activity_0zro49q">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{statusCode != 406 and statusCode != 200}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="elfin">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="192" y="252" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="167" y="295" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ebeebz_di" bpmnElement="Activity_0zaah45">
+        <dc:Bounds x="330" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0idhl6c_di" bpmnElement="Gateway_0idhl6c" isMarkerVisible="true">
+        <dc:Bounds x="535" y="245" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1orx5kc_di" bpmnElement="Activity_09r6c7s">
+        <dc:Bounds x="670" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_01sww65_di" bpmnElement="Activity_167nbah">
+        <dc:Bounds x="810" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lhmbqt_di" bpmnElement="Activity_0zro49q">
+        <dc:Bounds x="1000" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_18vg71j_di" bpmnElement="Gateway_18vg71j" isMarkerVisible="true">
+        <dc:Bounds x="835" y="245" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01jvomf_di" bpmnElement="Event_01jvomf">
+        <dc:Bounds x="1212" y="252" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1fi6z0t_di" bpmnElement="Flow_1fi6z0t">
+        <di:waypoint x="228" y="270" />
+        <di:waypoint x="330" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07hllto_di" bpmnElement="Flow_07hllto">
+        <di:waypoint x="430" y="270" />
+        <di:waypoint x="535" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0bzxivg_di" bpmnElement="Flow_0bzxivg">
+        <di:waypoint x="560" y="245" />
+        <di:waypoint x="560" y="120" />
+        <di:waypoint x="810" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="564" y="177" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nt1vk5_di" bpmnElement="Flow_0nt1vk5">
+        <di:waypoint x="585" y="270" />
+        <di:waypoint x="670" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="576" y="283" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0906973_di" bpmnElement="Flow_0906973">
+        <di:waypoint x="910" y="120" />
+        <di:waypoint x="1230" y="120" />
+        <di:waypoint x="1230" y="252" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0uci0sz_di" bpmnElement="Flow_0uci0sz">
+        <di:waypoint x="1100" y="270" />
+        <di:waypoint x="1212" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_074rzi5_di" bpmnElement="Flow_074rzi5">
+        <di:waypoint x="770" y="270" />
+        <di:waypoint x="835" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nuesl2_di" bpmnElement="Flow_0nuesl2">
+        <di:waypoint x="885" y="270" />
+        <di:waypoint x="1000" y="270" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="899" y="236" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nunr77_di" bpmnElement="Flow_1nunr77">
+        <di:waypoint x="860" y="245" />
+        <di:waypoint x="860" y="160" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="856" y="186" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0109iv2_di" bpmnElement="Flow_0109iv2">
+        <di:waypoint x="560" y="295" />
+        <di:waypoint x="560" y="560" />
+        <di:waypoint x="1050" y="560" />
+        <di:waypoint x="1050" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="771" y="516" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
