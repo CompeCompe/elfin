@@ -71,9 +71,14 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{statusCode == 406}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:userTask id="Activity_09r6c7s" name="Необходима ручная проверка данных">
+      <bpmn:documentation>username = ${username}
+
+email = ${email}</bpmn:documentation>
       <bpmn:extensionElements>
         <camunda:formData>
-          <camunda:formField id="isEmailCorrect" label="Подтвердить данные или нет?" type="boolean" defaultValue="false" />
+          <camunda:formField id="isEmailCorrect" label="Подтвердить данные или нет?" type="string" defaultValue="false">
+            <camunda:properties />
+          </camunda:formField>
         </camunda:formData>
         <camunda:inputOutput>
           <camunda:outputParameter name="isEmailCorrect">${isEmailCorrect}</camunda:outputParameter>
@@ -197,10 +202,14 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1orx5kc_di" bpmnElement="Activity_09r6c7s">
         <dc:Bounds x="670" y="230" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_01sww65_di" bpmnElement="Activity_167nbah">
         <dc:Bounds x="810" y="80" width="100" height="80" />
         <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_01jvomf_di" bpmnElement="Event_01jvomf">
+        <dc:Bounds x="1212" y="252" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0lhmbqt_di" bpmnElement="Activity_0zro49q">
         <dc:Bounds x="1000" y="230" width="100" height="80" />
@@ -208,9 +217,6 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_18vg71j_di" bpmnElement="Gateway_18vg71j" isMarkerVisible="true">
         <dc:Bounds x="835" y="245" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_01jvomf_di" bpmnElement="Event_01jvomf">
-        <dc:Bounds x="1212" y="252" width="36" height="36" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1fi6z0t_di" bpmnElement="Flow_1fi6z0t">
         <di:waypoint x="228" y="270" />
